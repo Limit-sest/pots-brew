@@ -1,0 +1,10 @@
+{
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportOptionalSubscript": "none",
+        "reportOptionalMemberAccess": "none",
+        "reportOptionalCall": "none",
+        "reportArgumentType": "information",
+        "reportAttributeAccessIssue": "warning"
+    },
+    "python.analysis.typeCheckingMode": "basic"
+}
