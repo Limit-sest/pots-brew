@@ -21,6 +21,7 @@ client = genai.Client(api_key=getenv('AI_TOKEN'))
 
 db = dataset.connect('sqlite:///cache.db')
 cache = db['cache']
+parents = db['parents']
 
 
 # First db setup
@@ -29,19 +30,21 @@ cache = db['cache']
 # cache.insert(dict(name='Ancient Soil', emoji='🌱', description='A handful of rich, dark earth, containing the condensed mineral dust from the deepest strata of the world. The source of all physical matter.'))
 # cache.insert(dict(name='Arcane Flame', emoji='🔥', description='A tiny, restless flicker of captured wild magic.'))
 
-discovered = cache.find(id=[1,2,3])
-
-print("What do you want to brew today? (write out your ingredients as numbers separated by spaces)")
-print("Discovered ingredients:")
-for ing in discovered:
-  print(f"{ing["id"]} {ing["emoji"]} {ing["name"]}")
-  print(f"   {ing["description"]}")
-input = input('> ').split(' ')
-print(input)
-ingredients = []
-for ing in input:
-  try:
-    ingredients.append(int(ing))
-  except:
+discovered = list(cache.find(id=[1,2,3,4]))
+while True:
+  print("Discovered ingredients:")
+  for ing in discovered:
+    print(f"{ing["id"]} {ing["emoji"]} {ing["name"]}")
+    print(f"   {ing["description"]}")
+  print("What do you want to brew today? Enter numbers separated by space.")
+  ingredients_raw = input('> ').split(' ')
+  if len(ingredients_raw) < 2:
+    print("Nothing happened.")
     continue
-print(ingredients)
+  ingredients = []
+  for ing in ingredients_raw:
+    try:
+      ingredients.append(int(ing))
+    except:
+      continue
+  
