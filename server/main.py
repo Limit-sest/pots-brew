@@ -7,18 +7,6 @@ import json
 load_dotenv()
 client = genai.Client(api_key=getenv('AI_TOKEN'))
 
-# response = client.models.generate_content(
-#     model="gemini-2.5-flash-lite",
-#     contents="""Create a short understandable name, one utf-8 encoded emoji and one-sentence description for a magical or normal ingredient, thing, potion or anything else that would be created by combining following ingredients in a cauldron:
-#     {"id": 1, "name": "River Water", "emoji": "\ud83d\udca7"}, {"name": "Glimmer Dew", "emoji": "✨", "description": "A luminous liquid that captures the essence of flowing currents and celestial radiance."}
-#     Return this as a json object with following fields: name, emoji (utf-8 encoded), description
-#     Do not use the word of the ingredients 
-#     Return this as a json, without code blocks!
-#     Consider things like dilution. The result can be mild, they do not have to be always epic.""",
-# )
-
-# print(response.text)
-
 db = dataset.connect('sqlite:///cache.db')
 cache = db['cache']
 parents = db['parents']
@@ -47,4 +35,15 @@ while True:
       ingredients.append(int(ing))
     except:
       continue
-  
+  response = client.models.generate_content(
+    model="gemini-2.5-flash-lite",
+    contents=f"""Create a short understandable name, one emoji and one-sentence description for a magical or normal ingredient, thing, potion or anything else that would be created by combining following ingredients in a cauldron:
+    {json.dumps(list(cache.find(id=ingredients)))}
+    Return this as a json object with following fields: name, emoji, description
+    Do not use the word of the ingredients, return only one emoji!
+    Return this as a json, without code blocks!
+    Consider things like dilution. The result can be mild, they do not have to be always epic.""",
+  ).text
+  response.replace("```json", "").replace("```", "")
+  new_ingredient = json.loads(response)
+  new_ingredient_id = cache.insert(new_ingredient)
