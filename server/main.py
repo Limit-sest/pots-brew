@@ -45,5 +45,6 @@ while True:
     Consider things like dilution. The result can be mild, they do not have to be always epic.""",
   ).text
   response.replace("```json", "").replace("```", "")
-  new_ingredient = json.loads(response)
-  new_ingredient_id = cache.insert(new_ingredient)
+  new_ingredient = dict(json.loads(response))
+  new_ingredient['id'] = cache.insert(new_ingredient)
+  discovered.append(new_ingredient)
