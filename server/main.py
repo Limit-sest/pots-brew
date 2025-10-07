@@ -14,15 +14,15 @@ with console.screen():
       console.print(f"   {ing["description"]}", style='italic bright_black')
     print("\nWhat do you want to brew today? Enter numbers separated by space.")
     ingredients_raw = input('> ').split(' ')
-    if len(ingredients_raw) < 2:
-      print("Nothing happened.")
-      continue
     ingredients = []
     for ing in ingredients_raw:
       try:
         ingredients.append(discovered[int(ing)-1]['id'])
       except:
         continue
+    if len(ingredients) < 2:
+      print("Nothing happened.")
+      continue
     
     existing = get_existing(ingredients)
     if existing:
@@ -33,7 +33,6 @@ with console.screen():
       console.print(f"   {existing["description"]}\n", style='italic bright_black')
     else:
       print("Brewing...")
-      print(ingredients)
       new = create_new(ingredients)
       if (new == None):
         print("You didn't manage to combine these.")
