@@ -27,12 +27,22 @@ def create_new(ingredients: list[int]) -> dict | None:
     try:
       response = client.models.generate_content(
         model="gemini-2.5-flash-preview-09-2025",
-        contents=f"""Create a short understandable name, one emoji and one-sentence description for a magical or normal ingredient, thing, potion or anything else that would be created by combining following ingredients in a cauldron:
+        contents=f"""
+        You are a village herbalist who crafts simple magical remedies and charms for everyday life. Based on the ingredients provided, describe the gentle concoction that results from combining them in a cauldron.
+
+        Ingredients:
         {json.dumps(list(cache.find(id=ingredients)))}
-        Return this as a json object with following fields: name, emoji, description
-        Do not use the word of the ingredients, return only one emoji!
-        Return this as a json, without code blocks!
-        Consider things like dilution. The result can be mild, they do not have to be always epic.""",
+
+        Your goal is to create an item with a touch of **folk magic**—useful and subtly enchanted, but not a legendary item. Think of a minor charm, a soothing poultice, or a simple warding dust.
+
+        Your output must be a single JSON object (without code blocks) with three keys:
+        - "name": A simple, evocative, and understandable name.
+        - "emoji": One fitting emoji for the item.
+        - "description": A one-sentence summary of its gentle magical property or use.
+
+        Do not reuse the ingredient names in your output.
+        """
+        ,
       ).text
       response.replace("```json", "").replace("```", "")
       new_ingredient = dict(json.loads(response))
