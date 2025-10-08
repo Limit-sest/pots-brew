@@ -1,4 +1,4 @@
-from server import get_existing, create_new, get_initial
+from server import discover, get_initial
 from rich.console import Console
 from rich.text import Text
 
@@ -24,22 +24,13 @@ with console.screen():
       print("Nothing happened.")
       continue
     
-    existing = get_existing(ingredients)
-    if existing:
-      discovered.append(existing)
-      # console.clear()
-      print("You have discovered a new item!")
-      console.print(f"{existing['emoji']} [b]{existing['name']}[/b]")
-      console.print(f"   {existing["description"]}\n", style='italic bright_black')
+    print('Brewing...')
+    new = discover(ingredients)
+    if new == None:
+      print("You didn't manage to combine these. Maybe try again?")
     else:
-      print("Brewing...")
-      new = create_new(ingredients)
-      if (new == None):
-        print("You didn't manage to combine these.")
-      else:
-        discovered.append(new)
-        # console.clear()
-        print("You have discovered a new item!")
-        console.print(f"{new['emoji']} [b]{new['name']}[/b]")
-        console.print(f"   {new["description"]}\n", style='italic bright_black')
+      discovered.append(new)
+      print("You have discovered a new item!")
+      console.print(f"{new['emoji']} [b]{new['name']}[/b]")
+      console.print(f"   {new["description"]}\n", style='italic bright_black')
         

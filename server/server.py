@@ -23,7 +23,7 @@ def get_initial() -> list[dict]:
 def create_new(ingredients: list[int]) -> dict | None:
   new_ingredient = {}
   ingredients_str = json.dumps(list(cache.find(id=ingredients)))
-  evolution = list(cache.find(id=ingredients, order_by='evolution'))[0]['evolution']+1
+  evolution = list(cache.find(id=ingredients, order_by='-evolution'))[0]['evolution']+1
   # Give the AI 3 tries
   for i in range(3):
     try:
@@ -42,7 +42,8 @@ def create_new(ingredients: list[int]) -> dict | None:
             *   **Stage 1:** The result is a common item that often has no magical properties. 
             *   **Stage 2:** The result is a simple, very practical item. Its magic is barely noticeable.
             *   **Stage 3:** The result is a proper folk charm or minor remedy. Its magic is subtle but verifiable.
-            *   **Stage 4+:** The result verges on true low-level magic. The item's function is more abstract and enchanted.
+            *   **Stage 4-5:** The result verges on true low-level magic. The item's function is more abstract and enchanted.
+            *   **Stage 6+:** The result has stronger magic properties.
 
         **Output Constraint:**
         The final item's name **must** reflect its physical state and its evolution stage (more advanced names for higher stages)
@@ -70,7 +71,7 @@ def create_new(ingredients: list[int]) -> dict | None:
     return None
   return new_ingredient
 
-def get_existing(ingredients: list[int]) -> int | None:
+def get_existing(ingredients: list[int]) -> dict | None:
   child_ids = {row['child_id'] for row in parents.all()}
 
   for child_id in child_ids:
@@ -82,3 +83,25 @@ def get_existing(ingredients: list[int]) -> int | None:
           return cache.find_one(id=child_id)
   return None
 
+def discover(ingredients: list[int]):
+  discovered = get_existing(ingredients)
+  if discovered == None:
+    return create_new(ingredients)
+  else:
+    return discovered
+    
+
+if (__name__ == '__main__'):
+  from fastapi import FastAPI
+  app = FastAPI()
+
+  @app.get("/initial")
+  def read_initial():
+      return get_initial()
+
+  @app.get("/initial")
+  
+
+  @app.get("/items/{item_id}")
+  def read_item(item_id: int, q: Union[str, None] = None):
+      return {"item_id": item_id, "q": q}
