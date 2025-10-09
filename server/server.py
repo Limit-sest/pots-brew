@@ -4,6 +4,21 @@ from dotenv import load_dotenv
 from os import getenv
 import json
 
+from fastapi import FastAPI
+from pydantic import BaseModel
+app = FastAPI()
+    
+class Ingredients(BaseModel):
+  ingredients: list[int]
+
+@app.get("/initial")
+def read_initial():
+    return get_initial()
+
+@app.post("/discover")
+async def create_discover(ingredients: Ingredients):
+  return await discover(ingredients.ingredients)
+    
 load_dotenv()
 client = genai.Client(api_key=getenv('AI_TOKEN'))
 
@@ -20,7 +35,7 @@ cache.insert(dict(name='Flickering Ember', emoji='🔥', description='A small, g
 def get_initial() -> list[dict]:
   return list(cache.find(id=[1,2,3,4]))
 
-def create_new(ingredients: list[int]) -> dict | None:
+async def create_new(ingredients: list[int]) -> dict | None:
   new_ingredient = {}
   ingredients_str = json.dumps(list(cache.find(id=ingredients)))
   evolution = list(cache.find(id=ingredients, order_by='-evolution'))[0]['evolution']+1
@@ -83,25 +98,9 @@ def get_existing(ingredients: list[int]) -> dict | None:
           return cache.find_one(id=child_id)
   return None
 
-def discover(ingredients: list[int]):
+async def discover(ingredients: list[int]):
   discovered = get_existing(ingredients)
   if discovered == None:
-    return create_new(ingredients)
+    return await create_new(ingredients)
   else:
     return discovered
-    
-
-if (__name__ == '__main__'):
-  from fastapi import FastAPI
-  app = FastAPI()
-
-  @app.get("/initial")
-  def read_initial():
-      return get_initial()
-
-  @app.get("/initial")
-  
-
-  @app.get("/items/{item_id}")
-  def read_item(item_id: int, q: Union[str, None] = None):
-      return {"item_id": item_id, "q": q}
