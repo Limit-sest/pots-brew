@@ -7,7 +7,7 @@ export const useDiscovered = defineStore('discovered', {
   }),
   actions: {
     async getInitial() {
-      this.discovered.push(await (await fetch('http://127.0.0.1:8000/initial')).json())
+      this.discovered = await (await fetch('http://127.0.0.1:8000/initial')).json()
     },
     async getNew(ingredients: Item[]) {
       const response = await fetch('http://127.0.0.1:8000/discover', {
