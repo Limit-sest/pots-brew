@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from os import getenv
 import json
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Response, status
 from pydantic import BaseModel
 app = FastAPI()
     
@@ -16,8 +16,11 @@ def read_initial():
     return get_initial()
 
 @app.post("/discover")
-async def create_discover(ingredients: Ingredients):
-  return await discover(ingredients.ingredients)
+async def create_discover(ingredients: Ingredients, response: Response):
+  discovered = await discover(ingredients.ingredients)
+  if discovered == None:
+    response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+  return discovered
     
 load_dotenv()
 client = genai.Client(api_key=getenv('AI_TOKEN'))
